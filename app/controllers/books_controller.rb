@@ -4,9 +4,10 @@ class BooksController < ApplicationController
 
   # GET /books
   def index
-    @books = Book.all
-
-    render json: @books
+    user = User.find(params[:user_id])
+    render json: {:user => user.name, :books => user.books}
+  rescue ActiveRecord::RecordNotFound
+    render json: user_not_found, :status => 404
   end
 
   # GET /books/1
@@ -39,6 +40,28 @@ class BooksController < ApplicationController
     @book.destroy
   end
 
+  # GET /books/all
+  def all
+    records_per_page = 10
+    total = Book.all.count
+    pages = (Float(total)/records_per_page).ceil
+    
+    if params[:page]
+      page = params[:page].to_i
+      if page >= 1 && page <= pages
+        current_page = page
+      else
+        current_page = 1
+      end
+    else
+      current_page = 1
+    end
+
+    books = Book.limit(records_per_page).offset((current_page - 1) * records_per_page)
+
+    render json: {:current_page => current_page, :pages => pages, :total => total, :hobbies => books}
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_book
@@ -47,7 +70,6 @@ class BooksController < ApplicationController
       render json: book_not_found, :status => 404
     rescue
       render json: internal_server_error, :status => 500
-    end
     end
 
     # Only allow a list of trusted parameters through.

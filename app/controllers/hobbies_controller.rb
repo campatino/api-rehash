@@ -40,8 +40,26 @@ class HobbiesController < ApplicationController
     @hobby.destroy
   end
 
+  # GET /hobbies/all
   def all
-    render json: Hobby.all
+    records_per_page = 10
+    total = Hobby.all.count
+    pages = (Float(total)/records_per_page).ceil
+    
+    if params[:page]
+      page = params[:page].to_i
+      if page >= 1 && page <= pages
+        current_page = page
+      else
+        current_page = 1
+      end
+    else
+      current_page = 1
+    end
+
+    hobbies = Hobby.limit(records_per_page).offset((current_page - 1) * records_per_page)
+
+    render json: {:current_page => current_page, :pages => pages, :total => total, :hobbies => hobbies}
   end
 
   private
