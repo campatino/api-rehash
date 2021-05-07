@@ -12,4 +12,8 @@ module ErrorLibrary
     return {:status => 404, :error => 'Not Found', :message => 'Hobby not found.'}
   end
 
+  def book_not_found
+    return {:status => 404, :error => 'Not Found', :message => 'Book not found.'}
+  end
+
 end

@@ -1,20 +1,18 @@
 class HobbiesController < ApplicationController
   include ErrorLibrary
-  before_action :set_hobby, only: [:update, :destroy]
+  before_action :set_hobby, only: [:show, :update, :destroy]
 
   # GET /hobbies
   def index
-    @hobbies = Hobby.all
-
-    render json: @hobbies
+    user = User.find(params[:user_id])
+    render json: {:user => user.name, :hobbies => HobbyBlueprint.render_as_json(user.hobbies)}
+  rescue ActiveRecord::RecordNotFound
+    render json: user_not_found, :status => 404
   end
 
   # GET /hobbies/1
   def show
-    user = User.find(params[:id])
-    render json: {:user => user.name, :hobbies => HobbyBlueprint.render_as_json(user.hobbies)}
-  rescue ActiveRecord::RecordNotFound
-    render json: user_not_found, :status => 404
+    render json: @hobby
   end
 
   # POST /hobbies
@@ -40,6 +38,10 @@ class HobbiesController < ApplicationController
   # DELETE /hobbies/1
   def destroy
     @hobby.destroy
+  end
+
+  def all
+    render json: Hobby.all
   end
 
   private
