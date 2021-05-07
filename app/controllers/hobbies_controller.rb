@@ -1,4 +1,5 @@
 class HobbiesController < ApplicationController
+  include ErrorLibrary
   before_action :set_hobby, only: [:update, :destroy]
 
   # GET /hobbies
@@ -13,7 +14,7 @@ class HobbiesController < ApplicationController
     user = User.find(params[:id])
     render json: {:user => user.name, :hobbies => HobbyBlueprint.render_as_json(user.hobbies)}
   rescue ActiveRecord::RecordNotFound
-    render json: {:status => 404, :error => 'Not Found', :message => 'User not found.'}, :status => 404
+    render json: user_not_found, :status => 404
   end
 
   # POST /hobbies
@@ -46,9 +47,9 @@ class HobbiesController < ApplicationController
     def set_hobby
       @hobby = Hobby.find(params[:id])
     rescue ActiveRecord::RecordNotFound
-      render json: {:status => 404, :error => 'Not Found', :message => 'Hobby not found.'}, :status => 404
+      render json: hobby_not_found, :status => 404
     rescue
-      render json: {:status => 500, :error => 'Internal Server Error', :message => 'Internal Server Error.'}, :status => 500
+      render json: internal_server_error, :status => 500
     end
 
     # Only allow a list of trusted parameters through.

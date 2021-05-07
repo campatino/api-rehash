@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  include ErrorLibrary
   before_action :set_user, only: [:show, :update, :destroy]
 
   # GET /users
@@ -43,9 +44,9 @@ class UsersController < ApplicationController
     def set_user
       @user = User.find(params[:id])
     rescue ActiveRecord::RecordNotFound
-      render json: {:status => 404, :error => 'Not Found', :message => 'User not found.'}, :status => 404
+      render json: user_not_found, :status => 404
     rescue
-      render json: {:status => 500, :error => 'Internal Server Error', :message => 'Internal Server Error.'}, :status => 500
+      render json: internal_server_error, :status => 500
     end
 
     # Only allow a list of trusted parameters through.
